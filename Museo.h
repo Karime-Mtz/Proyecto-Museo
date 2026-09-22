@@ -15,8 +15,8 @@ class Museo {
         string pais;
         vector<Obra> coleccion;
 
-        int particion(int inicio, int fin);
-        void quick_sort(int inicio, int fin);
+        int particion(int inicio, int fin, string criterio);
+        void quick_sort(int inicio, int fin, string criterio);
 
     public:
         Museo();
@@ -29,6 +29,7 @@ class Museo {
         void set_pais(string country);
 
         void ordenar_por_anio();
+        void ordenar_por_reciente();
         void registrar_obra(const Obra& nueva);
         void mostrar_catalogo();
         void catalogo_fechas();
@@ -62,17 +63,25 @@ void Museo::set_pais(string country){
 }
 
 void Museo::registrar_obra(const Obra& nueva){
-    // push_back se usa para añadir un nuevo elemento al dinal del vector 
     coleccion.push_back(nueva);
 }
 
 // Función de ayuda para dividir el vector utilizando el anio como pivote
-int Museo::particion(int inicio, int fin) {
-    int pivote = coleccion[fin].get_anio();
+int Museo::particion(int inicio, int fin, string criterio) {
     int i = inicio - 1;
 
     for (int j = inicio; j < fin; j++) {
-        if (coleccion[j].get_anio() <= pivote) {
+        bool condicion = false;
+        
+        if (criterio == "anio") {
+            // Ascendente por año
+            condicion = (coleccion[j].get_anio() <= coleccion[fin].get_anio());
+        } else if (criterio == "reciente") {
+            // Descendente por ID (lo más nuevo primero)
+            condicion = (coleccion[j].get_id() >= coleccion[fin].get_id());
+        }
+
+        if (condicion) {
             i++;
             swap(coleccion[i], coleccion[j]);
         }
@@ -81,19 +90,26 @@ int Museo::particion(int inicio, int fin) {
     return (i + 1);
 }
 
-void Museo::quick_sort(int inicio, int fin) {
+void Museo::quick_sort(int inicio, int fin, string criterio) {
     if (inicio < fin) {
-        int pi = particion(inicio, fin);
-        quick_sort(inicio, pi - 1);
-        quick_sort(pi + 1, fin);
+        int pi = particion(inicio, fin, criterio);
+        quick_sort(inicio, pi - 1, criterio);
+        quick_sort(pi + 1, fin, criterio);
     }
 }
 
 void Museo::ordenar_por_anio() {
-    if (!coleccion.empty()) {
-        quick_sort(0, coleccion.size() - 1);
+    if (!coleccion.size() == 0) {
+        quick_sort(0, coleccion.size() - 1, "anio");
     }
 }
+
+void Museo::ordenar_por_reciente() {
+    if (!coleccion.size() == 0) {
+        quick_sort(0, coleccion.size() - 1, "reciente");
+    }
+}
+
 
 void Museo::mostrar_catalogo() {
     cout << "\nMuseo: " << nombre << " (" << pais << ")" << endl;
