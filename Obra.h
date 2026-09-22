@@ -92,11 +92,11 @@ void Obra::mostrar_info_completa(){
     cout << "\n\nID: " << id << endl;
     cout << "Titulo: " << titulo << endl;
     cout << "Autor: " << autor << endl;
-    cout << "Fecha :" << anio << endl;
-    cout << "Valor : $" << precio << endl;
+    cout << "Fecha: " << anio << endl;
+    cout << "Valor: $" << precio << endl;
 }
 
 void Obra::mostrar_fechas(){
-    cout << "\n\n" << titulo << "(" << anio << ")" << endl;
+    cout << titulo << "(" << anio << ")" << endl;
 }
 #endif
