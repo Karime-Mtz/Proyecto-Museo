@@ -4,8 +4,11 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <utility>
+#include <fstream>
+#include <sstream>
 #include "Obra.h"
+#include "Sala.h"
+#include "Arbol.h"
 using namespace std;
 
 
@@ -13,14 +16,13 @@ class Museo {
     private:
         string nombre;
         string pais;
-        vector<Obra> coleccion;
-
-        int particion(int inicio, int fin, string criterio);
-        void quick_sort(int inicio, int fin, string criterio);
+        vector<Sala> salas; 
+        Arbol arbol_obras;
 
     public:
         Museo();
         Museo(string name, string country);
+        vector<Sala>& get_salas() { return salas; }
 
         string get_nombre();
         string get_pais();
@@ -28,12 +30,11 @@ class Museo {
         void set_nombre(string name);
         void set_pais(string country);
 
-        void ordenar_por_anio();
-        void ordenar_por_reciente();
-        void registrar_obra(const Obra& nueva);
-        void mostrar_catalogo();
-        void catalogo_fechas();
-
+        void cargar_obras(string nombre_archivo, int& contador_id);
+        void mostrar_salas();
+        void buscar_obra_por_id(int id);
+        void guardar_favoritos(string nombre_archivo, vector<Obra>& favoritos);
+        void mostrar_mis_favoritos();
 };
 
 Museo::Museo(){
@@ -62,75 +63,137 @@ void Museo::set_pais(string country){
     pais = country;
 }
 
-void Museo::registrar_obra(const Obra& nueva){
-    coleccion.push_back(nueva);
-}
+// Complejidad O(n)
+void Museo::cargar_obras(string nombre_archivo, int& contador_id) {
+    ifstream archivo(nombre_archivo);
 
-// Función de ayuda para dividir el vector utilizando el anio como pivote
-int Museo::particion(int inicio, int fin, string criterio) {
-    int i = inicio - 1;
+    if (!archivo.is_open()) {
+        cout << "Error: No se pudo abrir el archivo " << nombre_archivo << endl;
+        return;
+    }
 
-    for (int j = inicio; j < fin; j++) {
-        bool condicion = false;
-        
-        if (criterio == "anio") {
-            // Ascendente por año
-            condicion = (coleccion[j].get_anio() <= coleccion[fin].get_anio());
-        } else if (criterio == "reciente") {
-            // Descendente por ID (lo más nuevo primero)
-            condicion = (coleccion[j].get_id() >= coleccion[fin].get_id());
+    string linea;
+    while (getline(archivo, linea)) {
+        if (linea.empty()) continue;
+
+        stringstream ss(linea);
+        string nombre_sala, titulo, autor, str_anio, str_precio;
+
+        getline(ss, nombre_sala, '|');
+        getline(ss, titulo, '|');
+        getline(ss, autor, '|');
+        getline(ss, str_anio, '|');
+        getline(ss, str_precio, '|');
+
+        // se usan funciones para convertir strings a numeros
+        // string to integer
+        int anio = stoi(str_anio);
+        // string to float
+        float precio = stof(str_precio);
+
+        Obra nueva_obra(contador_id++, titulo, autor, anio, precio);
+
+        arbol_obras.add(nueva_obra);
+
+        int indice_sala = -1;
+        for (size_t i = 0; i < salas.size(); i++) {
+            if (salas[i].get_nombre_sala() == nombre_sala) {
+                indice_sala = i;
+                break;
+            }
         }
 
-        if (condicion) {
-            i++;
-            swap(coleccion[i], coleccion[j]);
+        if (indice_sala == -1) {
+            Sala nueva_sala(nombre_sala);
+            nueva_sala.agregar_obra(nueva_obra);
+            salas.push_back(nueva_sala);
+        } else {
+            // Si ya existe, agregamos la obra a la Lista Doblemente Ligada de esa sala
+            salas[indice_sala].agregar_obra(nueva_obra);
         }
     }
-    swap(coleccion[i + 1], coleccion[fin]);
-    return (i + 1);
+
+    archivo.close();
+    cout << "Archivo " << nombre_archivo << "cargado con exito" << endl;
 }
 
-void Museo::quick_sort(int inicio, int fin, string criterio) {
-    if (inicio < fin) {
-        int pi = particion(inicio, fin, criterio);
-        quick_sort(inicio, pi - 1, criterio);
-        quick_sort(pi + 1, fin, criterio);
-    }
-}
-
-void Museo::ordenar_por_anio() {
-    if (!coleccion.size() == 0) {
-        quick_sort(0, coleccion.size() - 1, "anio");
-    }
-}
-
-void Museo::ordenar_por_reciente() {
-    if (!coleccion.size() == 0) {
-        quick_sort(0, coleccion.size() - 1, "reciente");
-    }
-}
-
-
-void Museo::mostrar_catalogo() {
-    cout << "\nMuseo: " << nombre << " (" << pais << ")" << endl;
-    if (coleccion.size() == 0) {
-    cout << "\nEl catalogo esta vacio." << endl;
+// Complejidad O(n)
+void Museo::mostrar_salas() {
+    cout << "\nSalas disponibles: "<< endl;
+    if (salas.empty()) {
+        cout << "No hay salas registradas aún." << endl;
     } else {
-        for (size_t i = 0; i < coleccion.size(); i++) {
-            coleccion[i].mostrar_info_completa();
+        for (size_t i = 0; i < salas.size(); i++) {
+            cout << i + 1 << ". " << salas[i].get_nombre_sala() << endl;
         }
     }
 }
 
-void Museo::catalogo_fechas() {
-    cout << "\nMuseo: " << nombre << " (" << pais << ")" << endl;
-    if (coleccion.size() == 0) {
-    cout << "\nEl catalogo esta vacio." << endl;
+// Complejidad O(log(n))
+void Museo::buscar_obra_por_id(int id) {
+    Obra* resultado = arbol_obras.buscar_por_id(id);
+
+    if (resultado != 0) {
+        cout << "\nObra encontrada" << endl;
+        resultado->mostrar_info_completa();
+        delete resultado;
     } else {
-        for (size_t i = 0; i < coleccion.size(); i++) {
-            coleccion[i].mostrar_fechas();
-        }
+        cout << "\nNo se encontro ninguna obra con el ID: " << id << endl;
     }
 }
 
+// Complejidad O(n)
+void Museo::guardar_favoritos(string nombre_archivo, vector<Obra>& favoritos) {
+    ofstream archivo(nombre_archivo);
+
+    if (!archivo.is_open()) {
+        cout << "Error: No se pudo crear el archivo de favoritos." << endl;
+        return;
+    }
+
+    for (size_t i = 0; i < favoritos.size(); i++) {
+        archivo << favoritos[i].get_id() << "|"
+                << favoritos[i].get_titulo() << "|"
+                << favoritos[i].get_autor() << "|"
+                << favoritos[i].get_anio() << endl;
+    }
+
+    archivo.close();
+    cout << "\n¡Lista de favoritos guardada en " << nombre_archivo << "!" << endl;
+}
+
+// Complejidad O(n)
+void Museo::mostrar_mis_favoritos() {
+    ifstream archivo("mis_favoritos.txt");
+
+    // Si el archivo no existe o no tiene datos
+    string linea;
+    bool tiene_contenido = false;
+
+    if (archivo.is_open()) {
+        cout << "\n           MIS OBRAS FAVORITAS              \n" << endl;
+
+       while (getline(archivo, linea)) {
+            if (!linea.empty()) {
+                stringstream ss(linea);
+                string id, titulo, autor, anio;
+                
+                getline(ss, id, '|');
+                getline(ss, titulo, '|');
+                getline(ss, autor, '|');
+                getline(ss, anio, '|');
+
+                cout << "- [" << id << "] " << titulo << " - " << autor << " (" << anio << ")" << endl;
+                tiene_contenido = true;
+            }
+        }
+        archivo.close();
+    }
+
+    if (!tiene_contenido) {
+        cout << "\nAun no tienes obras guardadas en tus favoritos." << endl;
+    } else {
+        cout <<  endl;
+    }
+}
 #endif
