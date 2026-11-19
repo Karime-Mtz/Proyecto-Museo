@@ -1,133 +1,117 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "Museo.h"
 
 using namespace std;
 
-#include "Museo.h"
-
-
-// Procedimiento menu
-char menu(){
-
-    // Imprime las opciones que se pueden realizar en el programa
-    cout << "\nElige una de las siguientes opciones "
-        "(a/b/c/d):" 
-     << endl;
-    cout << "a) Mostrar catalogo" << endl;
-    cout << "b) Registrar nueva obra" << endl;
-    // cout << "c) Consultar informacion de una obra" << endl;
-    cout << "d) Salir\n" << endl;
+// Este es el menu principal
+char menu_principal() {
+    cout << "\n\n   BIENVENIDO AL MUSEO   " << endl;
+    cout << "a) Iniciar Recorrido por Salas (Guiado)" << endl;
+    cout << "b) Buscar Obra por ID" << endl;
+    cout << "c) Ver Catalogos" << endl;
+    cout << "d) Ver Favoritos" << endl;
+    cout << "e) Salir" << endl;
+    cout << "Elige una opcion: ";
 
     char opcion;
-    // Lee la opcion que ha sido seleccionada
     cin >> opcion;
-    cin.ignore();    
-    return opcion;
-}
-
-char menu2() {
-
-    cout << "\na) Ordenado por mas reciente" << endl;
-    cout << "b) Ordenado por anio" << endl;
-    cout << "c) Regresar\n" << endl;
-
-    char opcion;
-    // Lee la opcion que ha sido seleccionada
-    cin >> opcion;
-    cin.ignore();    
-    return opcion;
-}
-
-Obra crear_obra(int &contador){
-    int fecha;
-    string titulo, autor;
-    float precio;
-
-    cout << "Titulo: ";
-    getline(cin, titulo);
-    cout << "Autor: ";
-    getline(cin, autor);
-    cout << "Anio: ";
-    cin >> fecha;
-    cout << "Precio (numero): ";
-    cin >> precio;
-
     cin.ignore();
+    return opcion;
+}
 
-    Obra obra_creada(contador, titulo, autor, fecha, precio);
-    contador++;
-    return obra_creada;
+char menu_catalogos() {
+    cout << "\n   Opciones " << endl;
+    cout << "a) Ordenado por ano de creacion" << endl;
+    cout << "b) Ordenado por mas reciente" << endl;
+    cout << "c) Regresar al menu principal" << endl;
+    cout << "Elige una opcion: ";
+
+    char opcion;
+    cin >> opcion;
+    cin.ignore();
+    return opcion;
 }
 
 int main() {
     Museo miMuseo("Museo Nacional", "Mexico");
-    
     int contador_id = 100;
 
-    miMuseo.registrar_obra(Obra(contador_id++,"La Mona Lisa", "Leonardo da Vinci", 1503, 860000000.0f));
-    miMuseo.registrar_obra(Obra(contador_id++,"El Grito", "Edvard Munch", 1893, 120000000.0f));
-    miMuseo.registrar_obra(Obra(contador_id++, "La Noche Estrellada", "Vincent van Gogh", 1889, 100000000.0f));
-    miMuseo.registrar_obra(Obra(contador_id++, "Guernica", "Pablo Picasso", 1937, 200000000.0f));
-    miMuseo.registrar_obra(Obra(contador_id++, "Nacimiento de Venus", "Sandro Botticelli", 1485, 500000000.0f));
-  
-    // Permite realizar varias acciones hasta que se salga del programa
-while (true) {
-        // Muestra el menu principial y recibe la opcion elegida
-        char choice = menu();
+    miMuseo.cargar_obras("obras.txt", contador_id);
+    vector<Obra> mis_favoritos;
 
-        // Ejecuta las funciones de acuerdo a la opcion elegida
+    while (true) {
+        char choice = menu_principal();
+
         switch (choice) {
             case 'a': {
-                bool submenu = true;
-                while(submenu) {
-                    char filtro = menu2();
-                    switch (filtro) {
-                        case 'a': { // Opción "Ordenado por más reciente"
-                            miMuseo.ordenar_por_reciente();
-                            miMuseo.mostrar_catalogo();
-                            break;
-                        }
-                        case 'b': { // Opción "Ordenado por año"
-                            miMuseo.ordenar_por_anio();
-                            miMuseo.catalogo_fechas(); // o miMuseo.mostrar_catalogo();
-                            break;
-                        }
-                        case 'c' : {
-                            cout << "Regresando al menu principal..." << endl;
-                            submenu = false;
-                            break;
-                        }
-                        default :
-                        cout << "opcion invalida" << endl;
+                miMuseo.mostrar_salas();
+                vector<Sala>& salas = miMuseo.get_salas();
+
+                if (!salas.empty()) {
+                    int seleccion;
+                    cout << "\nSelecciona el numero de sala a visitar (0 para regresar): ";
+                    cin >> seleccion;
+                    cin.ignore();
+
+                    if (seleccion > 0 && seleccion <= (int)salas.size()) {
+                        salas[seleccion - 1].iniciar_recorrido(mis_favoritos);
+                    }
+                    if (!mis_favoritos.empty()) {
+                        miMuseo.guardar_favoritos("mis_favoritos.txt", mis_favoritos);
                     }
                 }
                 break;
             }
 
             case 'b': {
-                Obra nueva_obra = crear_obra(contador_id);
-                miMuseo.registrar_obra(nueva_obra);
-                cout << "Obra registrada" << endl;
+                int id_buscado;
+                cout << "\nIngresa el ID de la obra que deseas buscar (100-119): ";
+                cin >> id_buscado;
+                cin.ignore();
+
+                miMuseo.buscar_obra_por_id(id_buscado);
                 break;
             }
 
             case 'c': {
-                cout << "hola" << endl;
+                miMuseo.mostrar_salas();
+                vector<Sala>& salas = miMuseo.get_salas();
+
+                if (!salas.empty()) {
+                    int seleccion;
+                    cout << "0. Regresar";
+                    cin >> seleccion;
+                    cin.ignore();
+
+                    if (seleccion > 0 && seleccion <= (int)salas.size()) {
+                        char filtro = menu_catalogos();
+
+                        if (filtro == 'a') {
+                            salas[seleccion - 1].ordenar_por_anio();
+                            salas[seleccion - 1].catalogo_fechas();
+                        } else if (filtro == 'b') {
+                            salas[seleccion - 1].ordenar_por_reciente();
+                            salas[seleccion - 1].mostrar_catalogo();
+                        }
+                    }
                 }
                 break;
-
-            case 'd': {
-                // en caso de que el usuario elija una opcion no valida
-                cout << "¡Hasta luego!" << endl;
+            }
+            case 'd' : {
+                miMuseo.mostrar_mis_favoritos();
+                break;
+            }
+            case 'e': {
+                cout << "\n¡Gracias por visitar el " << miMuseo.get_nombre() << "! Que tengas un excelente dia." << endl;
                 return 0;
             }
 
             default:
-                cout << "Opcion invalida" << endl;
+                cout << "\nOpcion no valida. Intenta de nuevo." << endl;
         }
     }
 
     return 0;
-
 }
