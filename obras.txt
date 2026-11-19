@@ -1,0 +1,20 @@
+Sala Renacentista|La Mona Lisa|Leonardo da Vinci|1503|860000000
+Sala Renacentista|Nacimiento de Venus|Sandro Botticelli|1485|500000000
+Sala Renacentista|La Creacion de Adan|Miguel angel|1512|750000000
+Sala Renacentista|La Escuela de Atenas|Rafael Sanzio|1511|600000000
+Sala Renacentista|El Jardin de las Delicias|El Bosco|1503|450000000
+Sala Impresionismo|La Noche Estrellada|Vincent van Gogh|1889|100000000
+Sala Impresionismo|Impresion, Sol Naciente|Claude Monet|1872|150000000
+Sala Impresionismo|El Almuerzo de los Canoteros|Pierre-Auguste Renoir|1881|110000000
+Sala Impresionismo|Los Girasoles|Vincent van Gogh|1888|120000000
+Sala Impresionismo|Bal du moulin de la Galette|Pierre-Auguste Renoir|1876|140000000
+Sala Arte Moderno|El Grito|Edvard Munch|1893|120000000
+Sala Arte Moderno|Guernica|Pablo Picasso|1937|200000000
+Sala Arte Moderno|La Persistencia de la Memoria|Salvador Dali|1931|150000000
+Sala Arte Moderno|Las Dos Fridas|Frida Kahlo|1939|130000000
+Sala Arte Moderno|Composicion VIII|Wassily Kandinsky|1923|90000000
+Sala Barroco y Clasico|Las Meninas|Diego Velazquez|1656|350000000
+Sala Barroco y Clasico|La Joven de la Perla|Johannes Vermeer|1665|180000000
+Sala Barroco y Clasico|La Ronda de Noche|Rembrandt|1642|250000000
+Sala Barroco y Clasico|La Vocacion de San Mateo|Caravaggio|1600|210000000
+Sala Barroco y Clasico|Saturno devorando a su hijo|Francisco de Goya|1823|160000000
