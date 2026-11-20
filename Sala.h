@@ -1,3 +1,11 @@
+// Justificacion de estructuras y algoritmos:
+// Lista Doble Ligada: la elegí para recorrer las salas porque
+//  permite avanzar al visitante y regresar a la anterior con una
+// complejidad de O(1) y también de agregar una obra al final en O(1) con tail.
+// QuickSort: O(nlogn), lo elegí para ordenar los catálogos porque QuickSort es
+// bueno para ordenar una gran cantidad de datos sin dejar de ser eficiente.
+
+
 #ifndef SALA_H
 #define SALA_H
 
@@ -54,6 +62,7 @@ class Sala {
         void ordenar_por_reciente();
         void mostrar_catalogo();
         void catalogo_fechas();
+        void fuera_exhibicion(int id);
 };
 
 Sala::Sala(){
@@ -83,7 +92,7 @@ void Sala::agregar_obra(const Obra& nueva) {
     coleccion.push_back(nueva);
 }
 
-// Complejidad O(n)
+// Complejidad O(n) porque recorre cada obra
 void Sala::iniciar_recorrido(vector<Obra>& favoritos) {
     if (head == 0) {
         cout << "\nLa " << nombre_sala << " no tiene obras registradas aun." << endl;
@@ -96,8 +105,11 @@ void Sala::iniciar_recorrido(vector<Obra>& favoritos) {
     cout << "\nHa comenzado tu recorrido en: " << nombre_sala << endl;
 
     while (actual != 0) {
-        cout << "Obra en exhibicion:" << endl;
+        cout << "Obra:" << endl;
         actual->obra.mostrar_info_completa();
+        if (!actual->obra.get_en_exhibicion()) {
+            cout << "- IMPORTANTE - Obra fuera de exhibicion" << endl;
+        }
 
         cout << "\nOpciones de navegacion:" << endl;
         if (actual->previous != 0) {
@@ -124,8 +136,20 @@ void Sala::iniciar_recorrido(vector<Obra>& favoritos) {
                 cout << "\nEstas en la primera obra de la sala." << endl;
             }   
         } else if (opcion == 'f' || opcion == 'F') {
-            favoritos.push_back(actual->obra);
-            cout << "\n¡\"" << actual->obra.get_titulo() << "\" se agrego a tus favoritos!" << endl;
+            bool ya_en_favoritos = false;
+            for (size_t i = 0; i < favoritos.size(); i++) {
+                if (favoritos[i].get_id() == actual->obra.get_id()) {
+                    ya_en_favoritos = true;
+                    break;
+                }
+            }
+
+            if (!ya_en_favoritos) {
+                favoritos.push_back(actual->obra);
+                cout << "\n¡\"" << actual->obra.get_titulo() << "\" se agrego a tus favoritos!" << endl;
+            } else {
+                cout << "\n\"" << actual->obra.get_titulo() << "\" ya esta en tus favoritos." << endl;
+            }
         } else if (opcion == 'x' || opcion == 'X') {
             cout << "\nSaliendo del recorrido..." << endl;
             break;
@@ -168,16 +192,16 @@ void Sala::quick_sort(int inicio, int fin, string criterio) {
     }
 }
 
-// Complejidad O(nlog(n))
+// Complejidad O(nlog(n)) porque utiliza el quicksort
 void Sala::ordenar_por_anio() {
-    if (!coleccion.size() == 0) {
+    if (!coleccion.empty()) {
         quick_sort(0, coleccion.size() - 1, "anio");
     }
 }
 
-// Complejidad O(nlog(n))
+// Complejidad O(nlog(n)) porque utiliza el quicksort
 void Sala::ordenar_por_reciente() {
-    if (!coleccion.size() == 0) {
+    if (!coleccion.empty()) {
         quick_sort(0, coleccion.size() - 1, "reciente");
     }
 }
@@ -190,6 +214,9 @@ void Sala::mostrar_catalogo() {
     } else {
         for (size_t i = 0; i < coleccion.size(); i++) {
             coleccion[i].mostrar_info_completa();
+            if (!coleccion[i].get_en_exhibicion()) {
+                cout << "- IMPORTANTE - Estado: Fuera de exhibicion" << endl;
+            }
         }
     }
 }
@@ -197,12 +224,33 @@ void Sala::mostrar_catalogo() {
 // Complejidad O(n)
 void Sala::catalogo_fechas() {
     cout << "\nMuseo: " << nombre_sala << endl;
+    cout << "\nSala: " << nombre_sala << endl;
     if (coleccion.size() == 0) {
     cout << "\nEl catalogo esta vacio." << endl;
     } else {
         for (size_t i = 0; i < coleccion.size(); i++) {
             coleccion[i].mostrar_fechas();
+            if (!coleccion[i].get_en_exhibicion()) {
+                cout << "  IMPORTANTE - Fuera de exhibicion" << endl;
+            }
         }
+    }
+}
+
+// Complejidad: O(n)
+void Sala::fuera_exhibicion(int id) {
+    for (size_t i = 0; i < coleccion.size(); i++) {
+        if (coleccion[i].get_id() == id) {
+            coleccion[i].set_en_exhibicion(false);
+        }
+    }
+
+    NodoLista* actual = head;
+    while (actual != 0) {
+        if (actual->obra.get_id() == id) {
+            actual->obra.set_en_exhibicion(false);
+        }
+        actual = actual->next;
     }
 }
 
