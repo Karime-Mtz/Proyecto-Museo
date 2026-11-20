@@ -1,3 +1,7 @@
+// Justificacion del BST
+// Arbol BST: O(log(n))ordena las obras por id, lo utilicé porque al
+//   buscar, agregar o eliminar obras evita que se tengan que recorrer todas
+
 #ifndef ARBOL_H
 #define ARBOL_H
 
@@ -12,11 +16,13 @@ class NodoBST {
         Obra obra;
         NodoBST* left;
         NodoBST* right;
+        NodoBST* predecesor();
 
     public:
         NodoBST(Obra val);
         void add(Obra val);
         Obra* find(int id_buscado);
+        void remove(int id_buscado);
 
         friend class Arbol;
 };
@@ -59,6 +65,74 @@ if (id_buscado < obra.get_id()) {
 return 0;
 }
 
+NodoBST* NodoBST::predecesor() {
+    NodoBST *le, *ri;
+
+    le = left;
+    ri = right;
+
+    if (left == 0) {
+        if (right != 0) {
+            right = 0;
+        }
+        return ri;
+    }
+
+    if (left->right == 0) {
+        left = left->left;
+        le->left = 0;
+        return le;
+    }
+
+    NodoBST *parent, *child;
+    parent = left;
+    child = left->right;
+    while (child->right != 0) {
+        parent = child;
+        child = child->right;
+    }
+    parent->right = child->left;
+    child->left = 0;
+    return child;
+}
+
+void NodoBST::remove(int id_buscado) {
+    NodoBST *succ, *old;
+
+    if (id_buscado < obra.get_id()) {
+        if (left != 0) {
+            if (left->obra.get_id() == id_buscado) {
+                old = left;
+                succ = left->predecesor();
+                if (succ != 0) {
+                    succ->left = old->left;
+                    succ->right = old->right;
+                }
+                left = succ;
+                delete old;
+            } else {
+                left->remove(id_buscado);
+            }
+        }
+    } else if (id_buscado > obra.get_id()) {
+        if (right != 0) {
+            if (right->obra.get_id() == id_buscado) {
+                old = right;
+                succ = right->predecesor();
+                if (succ != 0) {
+                    succ->left = old->left;
+                    succ->right = old->right;
+                }
+                right = succ;
+                delete old;
+            } else {
+                right->remove(id_buscado);
+            }
+        }
+    }
+}
+
+
 class Arbol {
     private:
         NodoBST* root;
@@ -68,6 +142,7 @@ class Arbol {
 
         void add(Obra obra);
         Obra* buscar_por_id(int id_buscado);
+        void remove(int id_buscado);
 };
 
 Arbol::Arbol(){
@@ -90,4 +165,23 @@ Obra* Arbol::buscar_por_id(int id_buscado) {
     }
     return 0;
 }
+
+void Arbol::remove(int id_buscado) {
+    if (root == 0) return;
+
+    if (root->obra.get_id() == id_buscado) {
+        NodoBST* old = root;
+        NodoBST* succ = root->predecesor();
+        if (succ != 0) {
+            succ->left = old->left;
+            succ->right = old->right;
+        }
+        root = succ;
+        delete old;
+        return;
+    }
+
+    root->remove(id_buscado);
+}
+
 #endif
