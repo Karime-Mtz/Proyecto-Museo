@@ -7,13 +7,13 @@ Por otro lado, el Administrador puede buscar obras por su id, retirar alguna pie
 ## SICT0302: Toma Decisiones
 ### Justificación de las Estructuras de Datos y del Algoritmo de Ordenamiento
 
-#### Algoritmo de Ordenamiento: QuickSort O(log n)
+#### Algoritmo de Ordenamiento: QuickSort [O(log n)]
 El algoritmo está presente al mostrar los catálogos ordenados por id o por fecha. La cantidad de obras que exhibe un museo puede ir aumentando con el tiempo, por lo que generalmente el catálogo de piezas exhibidas es muy largo. Seleccioné el algoritmo de ordenamiento QuickSort porque no ocupa tanta memoria RAM y sobre todo porque tiene una complejidad de O(log n). Esto quiere decir que sigue siendo eficiente sin importar la cantidad de obras que sean agregadas al museo.
 
-#### Lista Doble Ligada O(1)
+#### Lista Doble Ligada [O(1)]
 La lista se encarga de guardar las obras y su información para que el Visitante pueda realizar el recorrido de las salas. Como dentro del recorrido se puede ir en dos direcciones, a la siguiente obra o la pasada, fue necesario utilizar una lista doble. Gracias a ella se mantiene una complejidad de O(1), y ya no es necesario volver a recorrer la lista desde el principio cuando el Visitante quiera regresar a la obra anterior.
 
-#### Árbol BST (
+#### Árbol BST [O(log n)]
 El árbol guarda los indices de todas las obras y se ocupa cada vez que el Administrador busca o quita una obra de exhibición. Elegí este tipo de estructura para que fuera mucho más fácil y eficiente acceder a las obras, ya que en la mayoría de los casos su complejidad es O(log n). De esta forma se evita que se tenga que recorrer cada sala y cada una de sus obras.
 
 ## SICT0301: Evalúa los componentes
