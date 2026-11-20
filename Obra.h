@@ -12,6 +12,7 @@ class Obra {
         string autor;
         int anio;
         float precio;
+        bool en_exhibicion;
 
     public:
         Obra();
@@ -21,7 +22,9 @@ class Obra {
         string get_autor();
         int get_anio();
         float get_precio();
+        bool get_en_exhibicion();
 
+        void set_en_exhibicion(bool estado);
         void set_id(int code);
         void set_titulo(string title);
         void set_autor(string author);
@@ -38,6 +41,7 @@ Obra::Obra(){
     autor = ""; 
     anio = 0;
     precio = 0.0;
+    en_exhibicion = true;
 }
 
 Obra::Obra(int code, string title, string author, int date, float price){
@@ -46,6 +50,15 @@ Obra::Obra(int code, string title, string author, int date, float price){
     autor = author;
     anio = date;
     precio = price;
+    en_exhibicion = true;
+}
+
+bool Obra::get_en_exhibicion() {
+    return en_exhibicion;
+}
+
+void Obra::set_en_exhibicion(bool estado) {
+    en_exhibicion = estado;
 }
 
 int Obra::get_id(){
